@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Street Racer</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    touch-action: none;
+}
+
+body {
+    margin: 0;
+    background: #111;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    color: white;
+}
+
+/* MENÜ */
+#menu {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(#151515, #303030);
+}
+
+h1 {
+    font-size: 50px;
+    margin-bottom: 40px;
+    text-shadow: 0 4px 10px black;
+}
+
+.menuButton {
+    width: 260px;
+    padding: 18px;
+    margin: 10px;
+    border: none;
+    border-radius: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    background: #e63946;
+    color: white;
+    box-shadow: 0 5px 0 #8d1823;
+}
+
+.menuButton:active {
+    transform: translateY(5px);
+    box-shadow: none;
+}
+
+/* BEÁLLÍTÁSOK */
+#settings {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    background: #202020;
+    text-align: center;
+    padding-top: 70px;
+}
+
+#settings h2 {
+    font-size: 35px;
+}
+
+.languageButton {
+    display: block;
+    width: 260px;
+    padding: 14px;
+    margin: 10px auto;
+    border: 2px solid white;
+    border-radius: 12px;
+    background: #333;
+    color: white;
+    font-size: 20px;
+}
+
+.back {
+    margin-top: 25px;
+    background: #555;
+}
+
+/* JÁTÉK */
+#game {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: #555;
+}
+
+/* ÚT */
+#road {
+    position: absolute;
+    width: 70vw;
+    max-width: 450px;
+    min-width: 280px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    border-left: 7px solid #ddd;
+    border-right: 7px solid #ddd;
+}
+
+/* ÚTVONALJELZŐ */
+.roadLine {
+    position: absolute;
+    width: 8px;
+    height: 100px;
+    background: white;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* AUTÓ */
+#car {
+    position: absolute;
+    width: 58px;
+    height: 100px;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* autó karosszéria */
+.carBody {
+    width: 58px;
+    height: 100px;
+    background: linear-gradient(90deg, #9d0000, #ff3030, #a00000);
+    border-radius: 15px 15px 10px 10px;
+    border: 3px solid #700000;
+    position: relative;
+    box-shadow: 0 5px 15px black;
+}
+
+/* ablak */
+.window {
+    position: absolute;
+    top: 15px;
+    left: 9px;
+    width: 34px;
+    height: 28px;
+    background: #8ed8ff;
+    border: 3px solid #222;
+    border-radius: 8px;
+}
+
+/* első lámpák */
+.light {
+    position: absolute;
+    width: 9px;
+    height: 8px;
+    background: #fff;
+    top: 5px;
+    border-radius: 4px;
+}
+
+.light.left {
+    left: 7px;
+}
+
+.light.right {
+    right: 7px;
+}
+
+/* kerekek */
+.wheel {
+    position: absolute;
+    width: 10px;
+    height: 27px;
+    background: #080808;
+    border-radius: 5px;
+}
+
+.wheel.left {
+    left: -7px;
+    top: 22px;
+}
+
+.wheel.right {
+    right: -7px;
+    top: 22px;
+}
+
+.wheel.left2 {
+    left: -7px;
+    bottom: 15px;
+}
+
+.wheel.right2 {
+    right: -7px;
+    bottom: 15px;
+}
+
+/* IRÁNYÍTÓGOMBOK */
+.controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 25px;
+}
+
+.controlButton {
+    width: 100px;
+    height: 75px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.25);
+    color: white;
+    font-size: 45px;
+    font-weight: bold;
+}
+
+.controlButton:active {
+    background: rgba(255,255,255,0.5);
+}
+
+/* PONT */
+#score {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+}
+
+/* VISSZA */
+#gameBack {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- FŐMENÜ -->
+<div id="menu">
+
+    <h1>🚗 Street Racer</h1>
+
+    <button class="menuButton" onclick="startGame()">
+        <span data-text="play">JÁTÉK</span>
+    </button>
+
+    <button class="menuButton" onclick="openSettings()">
+        <span data-text="settings">BEÁLLÍTÁSOK</span>
+    </button>
+
+</div>
+
+
+<!-- BEÁLLÍTÁSOK -->
+<div id="settings">
+
+    <h2 data-text="settings">BEÁLLÍTÁSOK</h2>
+
+    <h3 data-text="language">Nyelv</h3>
+
+    <button class="languageButton" onclick="setLanguage('hu')">
+        🇭🇺 Magyar
+    </button>
+
+    <button class="languageButton" onclick="setLanguage('en')">
+        🇬🇧 English
+    </button>
+
+    <button class="languageButton" onclick="setLanguage('pl')">
+        🇵🇱 Polski
+    </button>
+
+    <button class="languageButton" onclick="setLanguage('cs')">
+        🇨🇿 Čeština
+    </button>
+
+    <button class="languageButton" onclick="setLanguage('de')">
+        🇩🇪 Deutsch
+    </button>
+
+    <button class="menuButton back" onclick="closeSettings()">
+        <span data-text="back">VISSZA</span>
+    </button>
+
+</div>
+
+
+<!-- JÁTÉK -->
+<div id="game">
+
+    <div id="road"></div>
+
+    <div id="score">
+        <span data-text="score">Pont</span>: 0
+    </div>
+
+    <button id="gameBack" onclick="backToMenu()">
+        ✕
+    </button>
+
+    <!-- AUTÓ -->
+    <div id="car">
+
+        <div class="carBody">
+
+            <div class="window"></div>
+
+            <div class="light left"></div>
+            <div class="light right"></div>
+
+            <div class="wheel left"></div>
+            <div class="wheel right"></div>
+
+            <div class="wheel left2"></div>
+            <div class="wheel right2"></div>
+
+        </div>
+
+    </div>
+
+    <!-- IRÁNYÍTÁS -->
+    <div class="controls">
+
+        <button class="controlButton"
+                ontouchstart="moveLeft()"
+                onmousedown="moveLeft()">
+            ◀
+        </button>
+
+        <button class="controlButton"
+                ontouchstart="moveRight()"
+                onmousedown="moveRight()">
+            ▶
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   NYELVEK
+========================= */
+
+const languages = {
+
+    hu: {
+        play: "JÁTÉK",
+        settings: "BEÁLLÍTÁSOK",
+        language: "Nyelv",
+        back: "VISSZA",
+        score: "Pont"
+    },
+
+    en: {
+        play: "PLAY",
+        settings: "SETTINGS",
+        language: "Language",
+        back: "BACK",
+        score: "Score"
+    },
+
+    pl: {
+        play: "GRAJ",
+        settings: "USTAWIENIA",
+        language: "Język",
+        back: "WRÓĆ",
+        score: "Punkty"
+    },
+
+    cs: {
+        play: "HRÁT",
+        settings: "NASTAVENÍ",
+        language: "Jazyk",
+        back: "ZPĚT",
+        score: "Body"
+    },
+
+    de: {
+        play: "SPIELEN",
+        settings: "EINSTELLUNGEN",
+        language: "Sprache",
+        back: "ZURÜCK",
+        score: "Punkte"
+    }
+
+};
+
+let currentLanguage = "hu";
+
+function setLanguage(lang) {
+
+    currentLanguage = lang;
+
+    document.querySelectorAll("[data-text]").forEach(element => {
+
+        const key = element.getAttribute("data-text");
+
+        element.textContent = languages[lang][key];
+
+    });
+
+    updateScore();
+
+}
+
+
+/* =========================
+   MENÜ
+========================= */
+
+function openSettings() {
+
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("settings").style.display = "block";
+
+}
+
+function closeSettings() {
+
+    document.getElementById("settings").style.display = "none";
+    document.getElementById("menu").style.display = "flex";
+
+}
+
+
+/* =========================
+   JÁTÉK
+========================= */
+
+let carX = 50;
+let score = 0;
+let playing = false;
+
+function startGame() {
+
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("settings").style.display = "none";
+    document.getElementById("game").style.display = "block";
+
+    score = 0;
+    carX = 50;
+    playing = true;
+
+    updateCar();
+    updateScore();
+
+}
+
+function backToMenu() {
+
+    playing = false;
+
+    document.getElementById("game").style.display = "none";
+    document.getElementById("menu").style.display = "flex";
+
+}
+
+
+/* =========================
+   AUTÓ IRÁNYÍTÁSA
+========================= */
+
+function moveLeft() {
+
+    if (!playing) return;
+
+    carX -= 5;
+
+    if (carX < 18) {
+        carX = 18;
+    }
+
+    updateCar();
+
+}
+
+function moveRight() {
+
+    if (!playing) return;
+
+    carX += 5;
+
+    if (carX > 82) {
+        carX = 82;
+    }
+
+    updateCar();
+
+}
+
+function updateCar() {
+
+    const car = document.getElementById("car");
+
+    car.style.left = carX + "%";
+
+}
+
+
+/* =========================
+   PONT
+========================= */
+
+function updateScore() {
+
+    document.getElementById("score").innerHTML =
+        languages[currentLanguage].score + ": " + score;
+
+}
+
+
+/* =========================
+   ÚTVONALJELZŐK
+========================= */
+
+for (let i = 0; i < 7; i++) {
+
+    const line = document.createElement("div");
+
+    line.className = "roadLine";
+
+    line.style.top = (i * 130) + "px";
+
+    document.getElementById("road").appendChild(line);
+
+}
+
+
+/* =========================
+   BILLENTYŰZET
+   gépen is működik
+========================= */
+
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "ArrowLeft") {
+        moveLeft();
+    }
+
+    if (event.key === "ArrowRight") {
+        moveRight();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
